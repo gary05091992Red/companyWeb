@@ -1,5 +1,38 @@
-# Vue 3 + Vite
+# 星和官方網站
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Vue 3 + Vite 企業官網專案。
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+## 本地開發
+
+```bash
+npm install
+npm run dev
+```
+
+## 建置
+
+```bash
+npm run build
+npm run preview
+```
+
+## 線上 Demo
+
+部署至 GitHub Pages 後，網址為：
+
+**https://gary05091992Red.github.io/companyWeb/**
+
+推送至 `main` 分支後會自動部署（GitHub Actions）。
+
+### 首次啟用 GitHub Pages
+
+1. 前往 Repo → **Settings** → **Pages**
+2. **Build and deployment** → Source 選擇 **GitHub Actions**
+
+### GitLab Pages（選用）
+
+若同步至 GitLab，推送 `main` 後 CI 會自動部署，網址為：
+
+**https://<你的帳號>.gitlab.io/companyWeb/**
+
+需在 GitLab 專案設定中啟用 Pages。

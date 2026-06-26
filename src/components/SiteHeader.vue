@@ -12,6 +12,7 @@ const navItems = [
 
 const mobileOpen = ref(false)
 const scrolled = ref(false)
+const baseUrl = import.meta.env.BASE_URL
 
 function handleScroll() {
   scrolled.value = window.scrollY > 10
@@ -42,7 +43,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
       <div class="container header-main-inner">
         <a href="#" class="logo" @click.prevent>
           <!-- 將 public/logo.svg 替換為您的 logo 圖片即可 -->
-          <img src="/logo.svg" alt="星和 Logo" />
+          <img :src="`${baseUrl}logo.svg`" alt="星和 Logo" />
         </a>
 
         <nav class="nav-desktop">
@@ -109,6 +110,10 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   z-index: 1000;
   background: #fff;
   transition: box-shadow 0.3s ease;
+}
+
+.header-main {
+  background: #fff;
 }
 
 .site-header.scrolled {
@@ -221,9 +226,11 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
 
 .menu-toggle span {
   display: block;
-  height: 2px;
-  background: var(--text-dark);
-  transition: transform 0.3s, opacity 0.3s;
+  width: 22px;
+  height: 2.5px;
+  background: #1a1a1a;
+  border-radius: 1px;
+  transition: transform 0.3s, opacity 0.3s, background 0.3s;
 }
 
 .menu-toggle.open span:nth-child(1) {
@@ -276,19 +283,37 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   .header-main-inner {
     position: relative;
     justify-content: flex-start;
+    width: 100%;
   }
 
   .header-actions {
     position: absolute;
-    top: 0;
-    right: 0;
-    height: 100%;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    z-index: 10;
     display: flex;
     align-items: center;
   }
 
   .menu-toggle {
     display: flex;
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+  }
+
+  .menu-toggle span {
+    width: 24px;
+    height: 3px;
+    background: #1a1a1a;
+  }
+
+  .menu-toggle.open span {
+    background: #1a1a1a;
   }
 }
 </style>

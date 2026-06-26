@@ -33,16 +33,9 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
 
 <template>
   <header class="site-header" :class="{ scrolled }">
-    <div class="header-top">
-      <div class="container header-top-inner">
-        <button type="button" class="contact-link" @click="openContactModal">聯絡我們</button>
-      </div>
-    </div>
-
     <div class="header-main">
       <div class="container header-main-inner">
         <a href="#" class="logo" @click.prevent>
-          <!-- 將 public/logo.svg 替換為您的 logo 圖片即可 -->
           <img :src="`${baseUrl}logo.svg`" alt="星和 Logo" />
         </a>
 
@@ -58,17 +51,8 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
         </nav>
 
         <div class="header-actions">
-          <button class="icon-btn" aria-label="搜尋">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="7" />
-              <path d="M20 20l-4-4" />
-            </svg>
-          </button>
-          <button class="icon-btn" aria-label="語言">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M3 12h18M12 3a15 15 0 014 10 15 15 0 01-4 10 15 15 0 01-4-10 15 15 0 014-10z" />
-            </svg>
+          <button type="button" class="contact-cta" @click="openContactModal">
+            聯絡我們
           </button>
           <button
             class="menu-toggle"
@@ -120,35 +104,15 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
 }
 
-.header-top {
-  border-bottom: 1px solid var(--border);
-}
-
-.header-top-inner {
-  display: flex;
-  justify-content: flex-end;
-  padding: 6px 24px;
-}
-
-.contact-link {
-  font-size: 13px;
-  color: var(--text-light);
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-
-.contact-link:hover {
-  color: var(--primary);
-}
-
 .header-main-inner {
   display: flex;
   align-items: center;
   height: var(--header-height);
-  gap: 32px;
+  gap: 40px;
+}
+
+.logo {
+  flex-shrink: 0;
 }
 
 .logo img {
@@ -158,6 +122,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
 
 .nav-desktop {
   display: flex;
+  align-items: center;
   gap: 36px;
   margin-left: auto;
 }
@@ -168,6 +133,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   letter-spacing: 1px;
   transition: color 0.2s;
   position: relative;
+  white-space: nowrap;
 }
 
 .nav-link::after {
@@ -192,24 +158,24 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
-.icon-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
+.contact-cta {
+  padding: 10px 24px;
+  background: var(--primary);
+  color: #fff;
   border: none;
-  background: none;
-  color: var(--text);
-  border-radius: 4px;
+  border-radius: 2px;
+  font-size: 14px;
+  letter-spacing: 1px;
   transition: background 0.2s;
+  white-space: nowrap;
 }
 
-.icon-btn:hover {
-  background: var(--bg-gray);
+.contact-cta:hover {
+  background: var(--primary-dark);
 }
 
 .menu-toggle {
@@ -268,15 +234,11 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
 }
 
 @media (max-width: 768px) {
-  .header-top {
-    display: none;
-  }
-
   .nav-desktop {
     display: none;
   }
 
-  .icon-btn {
+  .contact-cta {
     display: none;
   }
 

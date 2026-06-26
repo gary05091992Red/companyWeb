@@ -1,8 +1,11 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { useContactModal } from '../composables/useContactModal'
+import { isGoogleFormConfigured } from '../config/googleForm'
+import { submitToGoogleForm } from '../services/contactFormService'
 
 const { isOpen, close } = useContactModal()
+const baseUrl = import.meta.env.BASE_URL
 
 const form = ref({
   name: '',
@@ -12,29 +15,15 @@ const form = ref({
   message: '',
 })
 
-const submitted = ref(false)
+const submitting = ref(false)
+const submitError = ref('')
+const submittedData = ref(null)
 
 const contactItems = [
-  {
-    label: '電話',
-    value: '+886-3-3756088',
-    icon: 'phone',
-  },
-  {
-    label: '傳真',
-    value: '+886-3-3757086',
-    icon: 'fax',
-  },
-  {
-    label: '電子郵件',
-    value: 'service@company.com.tw',
-    icon: 'email',
-  },
-  {
-    label: '地址',
-    value: '台灣桃園市龜山區興邦路 31 號',
-    icon: 'location',
-  },
+  { label: '電話', value: '+886-3-3756088', icon: 'phone' },
+  { label: '傳真', value: '+886-3-3757086', icon: 'fax' },
+  { label: '電子郵件', value: 'service@company.com.tw', icon: 'email' },
+  { label: '地址', value: '台灣桃園市龜山區興邦路 31 號', icon: 'location' },
 ]
 
 const socialLinks = [
@@ -43,10 +32,31 @@ const socialLinks = [
   { label: 'Linkedin', href: '#' },
 ]
 
-function handleSubmit() {
-  submitted.value = true
-  form.value = { name: '', phone: '', email: '', company: '', message: '' }
-  setTimeout(() => { submitted.value = false }, 4000)
+async function handleSubmit() {
+  submitError.value = ''
+  submitting.value = true
+
+  const payload = { ...form.value }
+
+  try {
+    if (isGoogleFormConfigured()) {
+      await submitToGoogleForm(payload)
+    } else {
+      throw new Error('Google 表單尚未設定，請編輯 src/config/googleForm.config.js')
+    }
+
+    submittedData.value = payload
+    form.value = { name: '', phone: '', email: '', company: '', message: '' }
+  } catch (error) {
+    submitError.value = error.message
+  } finally {
+    submitting.value = false
+  }
+}
+
+function resetForm() {
+  submittedData.value = null
+  submitError.value = ''
 }
 
 function onKeydown(e) {
@@ -54,7 +64,10 @@ function onKeydown(e) {
 }
 
 watch(isOpen, (open) => {
-  if (!open) submitted.value = false
+  if (!open) {
+    submittedData.value = null
+    submitError.value = ''
+  }
 })
 
 onMounted(() => window.addEventListener('keydown', onKeydown))
@@ -76,10 +89,9 @@ onUnmounted(() => {
           </button>
 
           <div class="modal-body">
-            <!-- 左側聯絡資訊 -->
             <aside class="modal-info">
               <div class="info-logo">
-                <img src="/logo.svg" alt="星和 Logo" />
+                <img :src="`${baseUrl}logo.svg`" alt="星和 Logo" />
               </div>
 
               <div class="info-list">
@@ -125,15 +137,31 @@ onUnmounted(() => {
               </div>
             </aside>
 
-            <!-- 右側表單 -->
             <div class="modal-form-wrap">
               <h2 id="contact-title" class="form-title">聯絡我們</h2>
 
-              <div v-if="submitted" class="success-msg">
-                感謝您的來信，我們將盡快與您聯繫！
+              <div v-if="submittedData" class="success-panel">
+                <div class="success-icon">✓</div>
+                <h3>提交成功！</h3>
+                <p class="success-desc">您的資料已寫入 Google 表單，我們將盡快與您聯繫。</p>
+
+                <dl class="submitted-summary">
+                  <div><dt>姓名</dt><dd>{{ submittedData.name }}</dd></div>
+                  <div><dt>電話</dt><dd>{{ submittedData.phone }}</dd></div>
+                  <div><dt>電子郵件</dt><dd>{{ submittedData.email }}</dd></div>
+                  <div><dt>公司</dt><dd>{{ submittedData.company }}</dd></div>
+                  <div v-if="submittedData.message"><dt>訊息</dt><dd>{{ submittedData.message }}</dd></div>
+                </dl>
+
+                <button type="button" class="submit-btn" @click="resetForm">再填一筆</button>
               </div>
 
-              <form class="contact-form" @submit.prevent="handleSubmit">
+              <form v-else class="contact-form" @submit.prevent="handleSubmit">
+                <p v-if="submitError" class="error-msg">{{ submitError }}</p>
+                <p v-if="!isGoogleFormConfigured()" class="warn-msg">
+                  Google 表單尚未設定，請編輯 src/config/googleForm.config.js。
+                </p>
+
                 <div class="form-row">
                   <div class="form-field">
                     <label>姓名 <span class="required">*</span></label>
@@ -160,7 +188,9 @@ onUnmounted(() => {
                   <textarea v-model="form.message" rows="4" placeholder="請在此輸入您的訊息"></textarea>
                 </div>
 
-                <button type="submit" class="submit-btn">提交</button>
+                <button type="submit" class="submit-btn" :disabled="submitting">
+                  {{ submitting ? '提交中...' : '提交' }}
+                </button>
               </form>
             </div>
           </div>
@@ -219,7 +249,6 @@ onUnmounted(() => {
   min-height: 520px;
 }
 
-/* 左側 */
 .modal-info {
   width: 38%;
   background: #f0f2f5;
@@ -322,12 +351,12 @@ onUnmounted(() => {
   height: 100%;
 }
 
-/* 右側表單 */
 .modal-form-wrap {
   flex: 1;
   padding: 48px 40px 40px;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .form-title {
@@ -337,16 +366,6 @@ onUnmounted(() => {
   color: var(--primary);
   margin-bottom: 32px;
   letter-spacing: 2px;
-}
-
-.success-msg {
-  background: #e8f5e9;
-  color: #2e7d32;
-  padding: 10px 14px;
-  border-radius: 6px;
-  margin-bottom: 16px;
-  font-size: 14px;
-  text-align: center;
 }
 
 .contact-form {
@@ -418,11 +437,96 @@ onUnmounted(() => {
   transition: background 0.2s;
 }
 
-.submit-btn:hover {
+.submit-btn:hover:not(:disabled) {
   background: var(--primary-dark);
 }
 
-/* 動畫 */
+.submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.error-msg {
+  background: #ffebee;
+  color: #c62828;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.warn-msg {
+  background: #fff8e1;
+  color: #f57f17;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.success-panel {
+  text-align: center;
+  padding: 12px 0;
+}
+
+.success-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.success-panel h3 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.success-desc {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.submitted-summary {
+  text-align: left;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+
+.submitted-summary div {
+  display: flex;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.submitted-summary div:last-child {
+  border-bottom: none;
+}
+
+.submitted-summary dt {
+  flex-shrink: 0;
+  width: 72px;
+  color: #888;
+}
+
+.submitted-summary dd {
+  margin: 0;
+  color: #333;
+  word-break: break-word;
+}
+
 .modal-enter-active,
 .modal-leave-active {
   transition: opacity 0.3s ease;
@@ -465,22 +569,12 @@ onUnmounted(() => {
     padding: 32px 24px 24px;
   }
 
-  .info-logo {
-    margin-bottom: 24px;
-  }
-
-  .social {
-    flex-wrap: wrap;
-    gap: 12px 20px;
-  }
-
   .modal-form-wrap {
     padding: 32px 24px;
   }
 
   .form-row {
     grid-template-columns: 1fr;
-    gap: 0;
   }
 }
 </style>

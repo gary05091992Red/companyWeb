@@ -113,10 +113,10 @@ onUnmounted(stopAutoPlay)
 <style scoped>
 .hero {
   position: relative;
-  height: calc(100vh - 100px);
+  height: calc(100vh - var(--header-height));
   min-height: 520px;
   max-height: 720px;
-  margin-top: 100px;
+  margin-top: var(--header-height);
   overflow: hidden;
 }
 
@@ -224,9 +224,9 @@ onUnmounted(stopAutoPlay)
 
 @media (max-width: 768px) {
   .hero {
-    height: calc(100vh - 72px);
+    height: calc(100vh - var(--header-height));
     min-height: 440px;
-    margin-top: 72px;
+    margin-top: var(--header-height);
   }
 
   .slide-title {

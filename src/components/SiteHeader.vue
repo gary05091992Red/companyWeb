@@ -1,21 +1,28 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { useContactModal } from '../composables/useContactModal'
 
 const { open: openContact } = useContactModal()
 
 const navItems = [
+  { label: '首頁', href: '#home' },
   { label: '關於我們', href: '#about' },
-  { label: '公司介紹', href: '#intro' },
   { label: '產品服務', href: '#products' },
 ]
 
 const mobileOpen = ref(false)
 const scrolled = ref(false)
+const activeSection = ref('#home')
 const baseUrl = import.meta.env.BASE_URL
+
+const sectionIds = ['home', 'about', 'products']
 
 function handleScroll() {
   scrolled.value = window.scrollY > 10
+}
+
+function isActive(href) {
+  return activeSection.value === href
 }
 
 function closeMobile() {
@@ -27,30 +34,72 @@ function openContactModal() {
   openContact()
 }
 
-onMounted(() => window.addEventListener('scroll', handleScroll))
-onUnmounted(() => window.removeEventListener('scroll', handleScroll))
+function setupSectionObserver() {
+  const sections = sectionIds
+    .map((id) => document.getElementById(id))
+    .filter(Boolean)
+
+  if (!sections.length) return null
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      const mostVisible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+
+      if (mostVisible) {
+        activeSection.value = `#${mostVisible.target.id}`
+      }
+    },
+    {
+      threshold: [0.25, 0.5, 0.75],
+    },
+  )
+
+  sections.forEach((section) => observer.observe(section))
+  return observer
+}
+
+let sectionObserver = null
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll, { passive: true })
+  sectionObserver = setupSectionObserver()
+})
+
+watch(mobileOpen, (open) => {
+  document.body.style.overflow = open ? 'hidden' : ''
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+  sectionObserver?.disconnect()
+  document.body.style.overflow = ''
+})
 </script>
 
 <template>
   <header class="site-header" :class="{ scrolled }">
     <div class="header-main">
       <div class="container header-main-inner">
-        <a href="#" class="logo" @click.prevent>
-          <img :src="`${baseUrl}logo.svg`" alt="星和 Logo" />
+        <div class="header-spacer" aria-hidden="true"></div>
+
+        <a href="#home" class="logo">
+          <img :src="`${baseUrl}logo.png`" alt="星和機電有限公司 Logo" />
         </a>
 
-        <nav class="nav-desktop">
-          <a
-            v-for="item in navItems"
-            :key="item.href"
-            :href="item.href"
-            class="nav-link"
-          >
-            {{ item.label }}
-          </a>
-        </nav>
-
-        <div class="header-actions">
+        <div class="header-right">
+          <nav class="nav-desktop">
+            <a
+              v-for="item in navItems"
+              :key="item.href"
+              :href="item.href"
+              class="nav-link"
+              :class="{ active: isActive(item.href) }"
+            >
+              {{ item.label }}
+            </a>
+          </nav>
           <button type="button" class="contact-cta" @click="openContactModal">
             聯絡我們
           </button>
@@ -74,11 +123,12 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
         :key="item.href"
         :href="item.href"
         class="nav-link"
+        :class="{ active: isActive(item.href) }"
         @click="closeMobile"
       >
         {{ item.label }}
       </a>
-      <button type="button" class="nav-link nav-link-btn" @click="openContactModal">
+      <button type="button" class="contact-cta contact-cta-mobile" @click="openContactModal">
         聯絡我們
       </button>
     </nav>
@@ -92,111 +142,117 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   left: 0;
   right: 0;
   z-index: 1000;
-  background: #fff;
-  transition: box-shadow 0.3s ease;
-}
-
-.header-main {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid transparent;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 .site-header.scrolled {
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
+  border-bottom-color: var(--border);
 }
 
 .header-main-inner {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   height: var(--header-height);
-  gap: 40px;
 }
 
 .logo {
-  flex-shrink: 0;
+  justify-self: center;
 }
 
 .logo img {
-  height: 40px;
+  height: 60px;
   width: auto;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  grid-column: 3;
 }
 
 .nav-desktop {
   display: flex;
   align-items: center;
-  gap: 36px;
-  margin-left: auto;
+  gap: 4px;
+  margin-right: 12px;
 }
 
 .nav-link {
+  position: relative;
+  padding: 8px 16px;
   font-size: 15px;
   color: var(--text-dark);
-  letter-spacing: 1px;
-  transition: color 0.2s;
-  position: relative;
-  white-space: nowrap;
+  font-weight: 500;
+  border-radius: var(--radius);
+  transition: color 0.2s, background 0.2s;
 }
 
-.nav-link::after {
+.nav-link:hover,
+.nav-link.active {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.nav-link.active {
+  font-weight: 600;
+}
+
+.nav-link.active::after {
   content: '';
   position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 0;
+  left: 16px;
+  right: 16px;
+  bottom: 4px;
   height: 2px;
   background: var(--primary);
-  transition: width 0.3s;
-}
-
-.nav-link:hover {
-  color: var(--primary);
-}
-
-.nav-link:hover::after {
-  width: 100%;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
+  border-radius: 1px;
 }
 
 .contact-cta {
-  padding: 10px 24px;
+  padding: 10px 22px;
   background: var(--primary);
   color: #fff;
   border: none;
-  border-radius: 2px;
+  border-radius: var(--radius);
   font-size: 14px;
-  letter-spacing: 1px;
-  transition: background 0.2s;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: background 0.2s, box-shadow 0.2s;
   white-space: nowrap;
 }
 
 .contact-cta:hover {
   background: var(--primary-dark);
+  box-shadow: var(--shadow-sm);
 }
 
 .menu-toggle {
   display: none;
   flex-direction: column;
   gap: 5px;
-  width: 36px;
-  height: 36px;
-  border: none;
-  background: none;
-  padding: 6px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 8px;
   justify-content: center;
 }
 
 .menu-toggle span {
   display: block;
-  width: 22px;
-  height: 2.5px;
-  background: #1a1a1a;
+  width: 20px;
+  height: 2px;
+  background: var(--text-dark);
   border-radius: 1px;
-  transition: transform 0.3s, opacity 0.3s, background 0.3s;
+  transition: transform 0.3s, opacity 0.3s;
 }
 
 .menu-toggle.open span:nth-child(1) {
@@ -216,66 +272,84 @@ onUnmounted(() => window.removeEventListener('scroll', handleScroll))
   flex-direction: column;
   background: #fff;
   border-top: 1px solid var(--border);
-  padding: 16px 24px;
-  gap: 16px;
+  padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
+  gap: 4px;
+  box-shadow: var(--shadow-md);
 }
 
 .nav-mobile.open {
   display: flex;
 }
 
-.nav-link-btn {
-  background: none;
-  border: none;
-  padding: 0;
-  text-align: left;
-  cursor: pointer;
-  font-family: inherit;
+.nav-mobile .nav-link {
+  padding: 14px 16px;
+  border-radius: var(--radius);
 }
 
-@media (max-width: 768px) {
+.nav-mobile .nav-link.active {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 600;
+  border-left: 3px solid var(--primary);
+  padding-left: 13px;
+}
+
+.nav-mobile .nav-link.active::after {
+  display: none;
+}
+
+.contact-cta-mobile {
+  margin-top: 8px;
+  width: 100%;
+  padding: 14px 22px;
+}
+
+@media (max-width: 992px) {
   .nav-desktop {
-    display: none;
+    gap: 2px;
+  }
+
+  .nav-link {
+    padding: 8px 12px;
+    font-size: 14px;
   }
 
   .contact-cta {
+    padding: 9px 16px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-main-inner {
+    grid-template-columns: 1fr auto;
+    padding: 0 4px;
+  }
+
+  .header-spacer {
     display: none;
   }
 
-  .header-main-inner {
-    position: relative;
-    justify-content: flex-start;
-    width: 100%;
+  .logo {
+    grid-column: 1;
+    justify-self: start;
   }
 
-  .header-actions {
-    position: absolute;
-    top: 50%;
-    right: 8px;
-    transform: translateY(-50%);
-    z-index: 10;
-    display: flex;
-    align-items: center;
+  .logo img {
+    height: 38px;
+  }
+
+  .header-right {
+    grid-column: 2;
+  }
+
+  .nav-desktop,
+  .header-right .contact-cta {
+    display: none;
   }
 
   .menu-toggle {
     display: flex;
-    width: 44px;
-    height: 44px;
-    padding: 10px;
-    border-radius: 8px;
-    background: #fff;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
-  }
-
-  .menu-toggle span {
-    width: 24px;
-    height: 3px;
-    background: #1a1a1a;
-  }
-
-  .menu-toggle.open span {
-    background: #1a1a1a;
   }
 }
 </style>

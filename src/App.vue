@@ -4,16 +4,20 @@ import HeroSlider from './components/HeroSlider.vue'
 import CompanyIntro from './components/CompanyIntro.vue'
 import ProductsSection from './components/ProductsSection.vue'
 import ContactModal from './components/ContactModal.vue'
-import SiteFooter from './components/SiteFooter.vue'
 </script>
 
 <template>
   <SiteHeader />
-  <main>
+  <main class="page-sections">
     <HeroSlider />
     <CompanyIntro />
     <ProductsSection />
   </main>
-  <SiteFooter />
   <ContactModal />
 </template>
+
+<style scoped>
+.page-sections {
+  width: 100%;
+}
+</style>

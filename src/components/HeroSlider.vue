@@ -1,111 +1,43 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
 import { useContactModal } from '../composables/useContactModal'
 
 const { open: openContact } = useContactModal()
+const baseUrl = import.meta.env.BASE_URL
 
-const slides = [
-  {
-    tag: '星和科技',
-    title: '關於我們',
-    subtitle: '以創新技術驅動產業升級，打造永續未來',
-    cta: '了解更多',
-    ctaLink: '#intro',
-    gradient: 'linear-gradient(135deg, #0a2540 0%, #0073c2 50%, #1a6b8a 100%)',
-  },
-  {
-    tag: '專業團隊',
-    title: '值得信賴的夥伴',
-    subtitle: '深耕產業多年，提供全方位解決方案',
-    cta: '查看服務',
-    ctaLink: '#products',
-    gradient: 'linear-gradient(135deg, #1a3a5c 0%, #005a99 50%, #2d8bc9 100%)',
-  },
-  {
-    tag: '永續經營',
-    title: '共創美好明天',
-    subtitle: '秉持誠信、創新、共贏的企業精神',
-    cta: '聯絡我們',
-    ctaAction: 'contact',
-    gradient: 'linear-gradient(135deg, #0d2137 0%, #0066aa 60%, #4a9fd4 100%)',
-  },
-]
-
-const current = ref(0)
-let timer = null
-
-function goTo(index) {
-  current.value = index
-}
-
-function prev() {
-  current.value = (current.value - 1 + slides.length) % slides.length
-}
-
-function next() {
-  current.value = (current.value + 1) % slides.length
-}
-
-function startAutoPlay() {
-  timer = setInterval(next, 6000)
-}
-
-function stopAutoPlay() {
-  clearInterval(timer)
-}
-
-onMounted(startAutoPlay)
-onUnmounted(stopAutoPlay)
+const description =
+  '專注於工業機電設備維護與自動化系統，提供天車設備維護、工業機電設備保養、PLC控制系統維護與故障排除等專業服務'
 </script>
 
 <template>
-  <section id="about" class="hero">
-    <div
-      v-for="(slide, index) in slides"
-      :key="index"
-      class="slide"
-      :class="{ active: index === current }"
-      :style="{ background: slide.gradient }"
-    >
-      <div class="slide-overlay"></div>
-      <div class="slide-content container">
-        <p class="slide-tag">{{ slide.tag }}</p>
-        <h1 class="slide-title">{{ slide.title }}</h1>
-        <p class="slide-subtitle">{{ slide.subtitle }}</p>
-        <a
-          v-if="slide.ctaLink"
-          :href="slide.ctaLink"
-          class="btn-primary"
-        >{{ slide.cta }}</a>
-        <button
-          v-else-if="slide.ctaAction === 'contact'"
-          type="button"
-          class="btn-primary"
-          @click="openContact"
-        >{{ slide.cta }}</button>
+  <section id="home" class="hero fullpage-section">
+    <div class="hero-bg" :style="{ backgroundImage: `url('${baseUrl}banner1.png')` }"></div>
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content container">
+      <div class="hero-text">
+        <p class="hero-eyebrow">INDUSTRIAL ELECTROMECHANICAL</p>
+        <h1 class="hero-title">星和機電有限公司</h1>
+        <p class="hero-tagline">專業機電維護 · 自動化整合 · 安全至上</p>
+
+        <div class="marquee-bar">
+          <div class="marquee-wrap">
+            <div class="marquee-track">
+              <p class="hero-desc">{{ description }}</p>
+              <p class="hero-desc" aria-hidden="true">{{ description }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <a href="#about" class="btn-primary">了解更多</a>
+          <button type="button" class="btn-outline" @click="openContact">聯絡我們</button>
+        </div>
       </div>
-    </div>
 
-    <button class="arrow arrow-left" aria-label="上一張" @click="prev(); stopAutoPlay(); startAutoPlay()">
-      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M15 6l-6 6 6 6" />
-      </svg>
-    </button>
-    <button class="arrow arrow-right" aria-label="下一張" @click="next(); stopAutoPlay(); startAutoPlay()">
-      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M9 6l6 6-6 6" />
-      </svg>
-    </button>
-
-    <div class="dots">
-      <button
-        v-for="(_, index) in slides"
-        :key="index"
-        class="dot"
-        :class="{ active: index === current }"
-        :aria-label="`第 ${index + 1} 張`"
-        @click="goTo(index)"
-      />
+      <a href="#about" class="scroll-hint" aria-label="向下捲動">
+        <span class="scroll-line"></span>
+        <span class="scroll-text">SCROLL</span>
+      </a>
     </div>
   </section>
 </template>
@@ -113,132 +45,224 @@ onUnmounted(stopAutoPlay)
 <style scoped>
 .hero {
   position: relative;
-  height: calc(100vh - var(--header-height));
-  min-height: 520px;
-  max-height: 720px;
-  margin-top: var(--header-height);
-  overflow: hidden;
 }
 
-.slide {
+.hero-bg {
   position: absolute;
   inset: 0;
-  opacity: 0;
-  transition: opacity 0.8s ease;
+  background-color: #0c2d4a;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-.slide.active {
-  opacity: 1;
-}
-
-.slide-overlay {
+.hero-overlay {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse at 70% 50%, rgba(255, 255, 255, 0.06) 0%, transparent 60%),
-    linear-gradient(to right, rgba(0, 0, 0, 0.35) 0%, transparent 60%);
+    linear-gradient(105deg, rgba(0, 30, 60, 0.82) 0%, rgba(0, 50, 90, 0.45) 55%, rgba(0, 60, 100, 0.25) 100%),
+    linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, transparent 40%);
 }
 
-.slide-content {
+.hero-content {
   position: relative;
   z-index: 1;
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding-bottom: 80px;
+  padding-top: var(--header-height);
+  padding-bottom: clamp(32px, 6vh, 56px);
   color: #fff;
 }
 
-.slide-tag {
-  font-size: 15px;
-  letter-spacing: 2px;
-  margin-bottom: 12px;
-  opacity: 0.9;
+.hero-text {
+  max-width: 780px;
+  animation: fade-up 0.9s ease both;
 }
 
-.slide-title {
-  font-size: 48px;
+.hero-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 16px;
+}
+
+.hero-title {
+  font-size: clamp(32px, 5vw, 56px);
   font-weight: 700;
   color: #fff;
-  margin-bottom: 16px;
-  letter-spacing: 3px;
+  margin-bottom: 12px;
+  letter-spacing: 2px;
+  line-height: 1.2;
 }
 
-.slide-subtitle {
-  font-size: 18px;
-  max-width: 520px;
+.hero-tagline {
+  font-size: clamp(15px, 2vw, 18px);
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 28px;
+  letter-spacing: 1px;
+}
+
+.marquee-bar {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius);
+  padding: 14px 0;
   margin-bottom: 32px;
-  opacity: 0.9;
-  line-height: 1.7;
+  overflow: hidden;
 }
 
-.arrow {
+.marquee-wrap {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 30s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+.hero-desc {
+  flex-shrink: 0;
+  font-size: clamp(13px, 1.6vw, 16px);
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.92);
+  white-space: nowrap;
+  padding-right: 80px;
+  margin: 0;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.scroll-hint {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 2;
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.7);
-  padding: 12px;
+  right: clamp(20px, 4vw, 48px);
+  bottom: clamp(32px, 6vh, 56px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.6);
   transition: color 0.2s;
 }
 
-.arrow:hover {
+.scroll-hint:hover {
   color: #fff;
 }
 
-.arrow-left {
-  left: 16px;
+.scroll-line {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), transparent);
+  animation: scroll-pulse 2s ease infinite;
 }
 
-.arrow-right {
-  right: 16px;
+.scroll-text {
+  font-size: 10px;
+  letter-spacing: 2px;
+  writing-mode: vertical-rl;
 }
 
-.dots {
-  position: absolute;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 10px;
-  z-index: 2;
+@keyframes marquee-scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
-.dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.6);
-  background: transparent;
-  padding: 0;
-  transition: background 0.3s;
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.dot.active {
-  background: #fff;
-  border-color: #fff;
+@keyframes scroll-pulse {
+  0%, 100% { opacity: 0.4; transform: scaleY(0.8); }
+  50% { opacity: 1; transform: scaleY(1); }
 }
 
 @media (max-width: 768px) {
-  .hero {
-    height: calc(100vh - var(--header-height));
-    min-height: 440px;
-    margin-top: var(--header-height);
+  .hero-content {
+    padding-bottom: 28px;
   }
 
-  .slide-title {
-    font-size: 32px;
+  .hero-eyebrow {
+    font-size: 10px;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
   }
 
-  .slide-subtitle {
-    font-size: 15px;
+  .hero-title {
+    letter-spacing: 1px;
+    margin-bottom: 8px;
   }
 
-  .arrow {
+  .hero-tagline {
+    font-size: 14px;
+    margin-bottom: 18px;
+    line-height: 1.6;
+  }
+
+  .marquee-bar {
+    padding: 12px 0;
+    margin-bottom: 20px;
+  }
+
+  .scroll-hint {
     display: none;
+  }
+
+  .marquee-wrap {
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+
+  .marquee-track {
+    animation: none;
+    flex-direction: column;
+    width: 100%;
+    padding: 0 14px;
+  }
+
+  .hero-desc {
+    white-space: normal;
+    padding-right: 0;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+
+  .hero-desc[aria-hidden='true'] {
+    display: none;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .hero-actions .btn-primary,
+  .hero-actions .btn-outline {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-bg {
+    background-position: 65% center;
+  }
+
+  .hero-title {
+    font-size: 26px;
   }
 }
 </style>

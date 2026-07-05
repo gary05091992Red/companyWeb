@@ -26,12 +26,6 @@ const contactItems = [
   { label: '地址', value: '台灣桃園市龜山區興邦路 31 號', icon: 'location' },
 ]
 
-const socialLinks = [
-  { label: 'Facebook', href: '#' },
-  { label: 'Youtube', href: '#' },
-  { label: 'Linkedin', href: '#' },
-]
-
 async function handleSubmit() {
   submitError.value = ''
   submitting.value = true
@@ -64,6 +58,7 @@ function onKeydown(e) {
 }
 
 watch(isOpen, (open) => {
+  document.body.style.overflow = open ? 'hidden' : ''
   if (!open) {
     submittedData.value = null
     submitError.value = ''
@@ -91,7 +86,7 @@ onUnmounted(() => {
           <div class="modal-body">
             <aside class="modal-info">
               <div class="info-logo">
-                <img :src="`${baseUrl}logo.svg`" alt="星和 Logo" />
+                <img :src="`${baseUrl}logo.png`" alt="星和機電有限公司 Logo" />
               </div>
 
               <div class="info-list">
@@ -119,21 +114,6 @@ onUnmounted(() => {
                     <span class="info-value">{{ item.value }}</span>
                   </div>
                 </div>
-              </div>
-
-              <div class="social">
-                <a v-for="link in socialLinks" :key="link.label" :href="link.href" class="social-link">
-                  <span v-if="link.label === 'Facebook'" class="social-icon">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
-                  </span>
-                  <span v-else-if="link.label === 'Youtube'" class="social-icon">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22.54 6.42a2.78 2.78 0 00-2.48-2.48C18.88 3.5 12 3.5 12 3.5s-6.88 0-8.06.44A2.78 2.78 0 001.46 6.42 29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 002.48 2.48C5.12 20.5 12 20.5 12 20.5s6.88 0 8.06-.44a2.78 2.78 0 002.48-2.48A29 29 0 0023 12a29 29 0 00-.46-5.58zM9.75 15.02V8.98L15.5 12l-5.75 3.02z"/></svg>
-                  </span>
-                  <span v-else class="social-icon">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-4 0v7h-4v-7a6 6 0 016-6zM2 9h4v12H2zM4 6a2 2 0 100-4 2 2 0 000 4z"/></svg>
-                  </span>
-                  {{ link.label }}
-                </a>
               </div>
             </aside>
 
@@ -317,38 +297,6 @@ onUnmounted(() => {
   font-size: 14px;
   color: #1a1a1a;
   line-height: 1.5;
-}
-
-.social {
-  display: flex;
-  gap: 20px;
-  padding-top: 24px;
-  margin-top: auto;
-  border-top: 1px solid #c8cdd3;
-}
-
-.social-link {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: #333;
-  transition: color 0.2s;
-}
-
-.social-link:hover {
-  color: var(--primary);
-}
-
-.social-icon {
-  width: 18px;
-  height: 18px;
-  display: flex;
-}
-
-.social-icon svg {
-  width: 100%;
-  height: 100%;
 }
 
 .modal-form-wrap {
@@ -549,14 +497,21 @@ onUnmounted(() => {
 
 @media (max-width: 768px) {
   .modal-overlay {
-    padding: 12px;
+    padding: 0;
     align-items: flex-end;
   }
 
   .modal {
     border-radius: 20px 20px 0 0;
-    max-height: 92vh;
+    max-height: 94dvh;
     overflow-y: auto;
+  }
+
+  .close-btn {
+    top: 12px;
+    right: 12px;
+    background: #fff;
+    box-shadow: var(--shadow-sm);
   }
 
   .modal-body {
@@ -566,15 +521,88 @@ onUnmounted(() => {
 
   .modal-info {
     width: 100%;
-    padding: 32px 24px 24px;
+    padding: 28px 20px 20px;
+  }
+
+  .info-logo {
+    margin-bottom: 20px;
+  }
+
+  .info-logo img {
+    height: 44px;
+  }
+
+  .info-item {
+    gap: 12px;
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+  }
+
+  .info-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .info-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .info-label {
+    font-size: 12px;
+  }
+
+  .info-value {
+    font-size: 13px;
+    word-break: break-word;
   }
 
   .modal-form-wrap {
-    padding: 32px 24px;
+    padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
+  }
+
+  .form-title {
+    font-size: 20px;
+    margin-bottom: 24px;
   }
 
   .form-row {
     grid-template-columns: 1fr;
+  }
+
+  .form-field {
+    margin-bottom: 20px;
+  }
+
+  .submit-btn {
+    width: 100%;
+    align-self: stretch;
+    text-align: center;
+    padding: 14px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal {
+    border-radius: 16px 16px 0 0;
+  }
+
+  .info-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+  }
+
+  .info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    border-bottom: none;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+  }
+
+  .info-item:nth-last-child(-n+2) {
+    margin-bottom: 0;
   }
 }
 </style>

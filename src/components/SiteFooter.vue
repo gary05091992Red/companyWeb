@@ -2,19 +2,20 @@
 import { useContactModal } from '../composables/useContactModal'
 
 const { open } = useContactModal()
+const baseUrl = import.meta.env.BASE_URL
 </script>
 
 <template>
   <footer class="site-footer">
     <div class="container footer-inner">
       <div class="footer-brand">
-        <img src="/logo.svg" alt="星和 Logo" class="footer-logo" />
-        <p>以創新驅動進步，以品質贏得信賴</p>
+        <img :src="`${baseUrl}星和LOGO.png`" alt="星和機電有限公司 Logo" class="footer-logo" />
+        <p>快速應變、專業施工、品質第一、安全至上</p>
       </div>
 
       <div class="footer-links">
+        <a href="#home">首頁</a>
         <a href="#about">關於我們</a>
-        <a href="#intro">公司介紹</a>
         <a href="#products">產品服務</a>
         <button type="button" class="footer-contact-btn" @click="open">聯絡我們</button>
       </div>
@@ -22,7 +23,7 @@ const { open } = useContactModal()
 
     <div class="footer-bottom">
       <div class="container">
-        <p>&copy; {{ new Date().getFullYear() }} 星和. All Rights Reserved.</p>
+        <p>&copy; {{ new Date().getFullYear() }} 星和機電有限公司. All Rights Reserved.</p>
       </div>
     </div>
   </footer>
@@ -42,10 +43,9 @@ const { open } = useContactModal()
 }
 
 .footer-logo {
-  height: 36px;
+  height: 44px;
   margin-bottom: 12px;
-  filter: brightness(0) invert(1);
-  opacity: 0.9;
+  opacity: 0.95;
 }
 
 .footer-brand p {

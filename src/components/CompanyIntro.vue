@@ -68,10 +68,6 @@ const values = [
               <img :src="`${baseUrl}素材2.jpg`" alt="技師進行配電盤檢修作業" />
               <figcaption>現場設備維護</figcaption>
             </figure>
-            <figure class="sub-image">
-              <img :src="`${baseUrl}素材1.jpg`" alt="精密儀器檢測" />
-              <figcaption>精密儀器檢測</figcaption>
-            </figure>
             <div class="auto-badge">
               <img :src="`${baseUrl}素材4.jpg`" alt="" aria-hidden="true" />
               <span>智慧自動化</span>
@@ -230,9 +226,9 @@ const values = [
 
 .about-layout {
   display: grid;
-  grid-template-columns: minmax(280px, 42%) 1fr;
+  grid-template-columns: minmax(260px, 40%) 1fr;
   gap: clamp(20px, 3vw, 40px);
-  align-items: center;
+  align-items: stretch;
   min-height: 0;
   flex: 1;
 }
@@ -245,13 +241,16 @@ const values = [
 .image-stack {
   position: relative;
   height: 100%;
-  min-height: 320px;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
 }
 
 .main-image {
   position: relative;
   margin: 0;
-  height: 88%;
+  flex: 1;
+  min-height: 0;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: var(--shadow-lg);
@@ -263,8 +262,7 @@ const values = [
   object-fit: cover;
 }
 
-.main-image figcaption,
-.sub-image figcaption {
+.main-image figcaption {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -275,25 +273,6 @@ const values = [
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 1px;
-}
-
-.sub-image {
-  position: absolute;
-  bottom: 0;
-  right: -8px;
-  width: 52%;
-  margin: 0;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 4px solid #fff;
-  box-shadow: var(--shadow-md);
-  aspect-ratio: 4 / 3;
-}
-
-.sub-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .auto-badge {
@@ -307,6 +286,7 @@ const values = [
   background: rgba(255, 255, 255, 0.95);
   border-radius: 40px;
   box-shadow: var(--shadow-md);
+  z-index: 1;
 }
 
 .auto-badge img {
@@ -529,35 +509,23 @@ const values = [
     min-height: unset;
     max-height: none;
     height: auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    padding-bottom: 0;
+    display: block;
   }
 
-  .main-image,
-  .sub-image {
+  .main-image {
     position: relative;
-    bottom: auto;
-    right: auto;
     width: 100%;
     height: auto;
-    aspect-ratio: 4 / 3;
-    margin: 0;
-    align-self: stretch;
-  }
-
-  .sub-image {
-    border-width: 3px;
+    aspect-ratio: 16 / 10;
+    max-height: min(42vh, 360px);
+    flex: none;
   }
 
   .auto-badge {
-    grid-column: 1 / -1;
-    position: relative;
-    top: auto;
-    right: auto;
-    justify-self: center;
-    margin: 2px auto 0;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    margin: 0;
     z-index: 1;
   }
 
@@ -609,11 +577,15 @@ const values = [
   }
 
   .image-stack {
-    gap: 8px;
+    width: 100%;
   }
 
-  .main-image figcaption,
-  .sub-image figcaption {
+  .main-image {
+    aspect-ratio: 16 / 10;
+    max-height: min(38vh, 280px);
+  }
+
+  .main-image figcaption {
     padding: 8px 10px;
     font-size: 11px;
   }
@@ -680,6 +652,11 @@ const values = [
 }
 
 @media (max-width: 480px) {
+  .main-image {
+    aspect-ratio: 4 / 3;
+    max-height: none;
+  }
+
   .values-panel {
     grid-template-columns: 1fr;
   }
